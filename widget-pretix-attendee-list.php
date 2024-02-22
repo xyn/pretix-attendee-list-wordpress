@@ -23,8 +23,6 @@ class Pretix_Attendee_List_Widget extends WP_Widget {
         $pretix_api_token = get_option("pretix_api_token");
         $pretix_organizer = get_option("pretix_organizer");
 
-        $debug = True;
-
         $api_calls = new Pretix_Attendee_List_Api_Calls();
         $tools = new Pretix_Attendee_List_Tools();
 
@@ -34,9 +32,6 @@ class Pretix_Attendee_List_Widget extends WP_Widget {
                 $closest_subevent = $tools->get_closest_subevent($subevents);
                 $orders = $api_calls->get_orders($pretix_api_url, $pretix_api_token, $pretix_organizer, $event, $closest_subevent['id']);
                 $approved_people = $tools->get_approved_people($orders, $permission_question_identifier, $sona_name_question_identifier);
-                if($debug == True) {
-                    echo "<p>Closest Subevent: " . $closest_subevent['name']['en'] . " on " . $closest_subevent['date_from'] . "</p>";
-                }
                 echo "<ul>\n";
                     foreach ($approved_people as $person) {
                         echo "\t<li>" . htmlspecialchars($person) . "</li>\n";
@@ -46,9 +41,6 @@ class Pretix_Attendee_List_Widget extends WP_Widget {
                 $selected_subevent = $api_calls->get_subevents($pretix_api_url, $pretix_api_token, $pretix_organizer, $event, $subevent);
                 $orders = $api_calls->get_orders($pretix_api_url, $pretix_api_token, $pretix_organizer, $event, $subevent);
                 $approved_people = $tools->get_approved_people($orders, $permission_question_identifier, $sona_name_question_identifier);
-                if($debug == True) {
-                    echo "<p>Specific Subevent: " . $selected_subevent['name']['en'] . " on " . $selected_subevent['date_from'] . "</p>";
-                }
                 echo "<ul>\n";
                     foreach ($approved_people as $person) {
                         echo "\t<li>" . htmlspecialchars($person) . "</li>\n";
@@ -58,9 +50,6 @@ class Pretix_Attendee_List_Widget extends WP_Widget {
         } else {
             $orders = $api_calls->get_orders($pretix_api_url, $pretix_api_token, $pretix_organizer, $event, null);
             $approved_people = $tools->get_approved_people($orders, $permission_question_identifier, $sona_name_question_identifier);
-            if($debug == True) {
-                echo "<p>This is a singular event</p>";
-            }
             echo "<ul>\n";
                 foreach ($approved_people as $person) {
                     echo "\t<li>" . htmlspecialchars($person) . "</li>\n";
