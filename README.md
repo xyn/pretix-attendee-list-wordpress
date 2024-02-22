@@ -30,7 +30,7 @@ Adding the list to a web page is done via the specific shortcode `[pretix_attend
 	- `event` - the ID of the event
    
 - Optional parameters
-	- `subevent` - the ID of the specific event series, in case that it is left empty, the plugin will automatically display the list of the participants from the closest series, date-wise, by default, it is set to `null`
-	- `is_singular_event` - In case of a singular event, this must be set to `True`, by default, it is set to `False`
+	- `subevent` - the ID of the specific event series, in case that it is left empty, the plugin will automatically display the list of the participants from the closest series, date-wise. By default, it is set to `null`
+	- `is_singular_event` - In case of a singular event, this must be set to `True`. By default, it is set to `False`
 
 
