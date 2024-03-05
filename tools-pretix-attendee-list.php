@@ -15,16 +15,36 @@
                 foreach ($subevents['results'] as $subevent) {
                     if (isset($subevent['date_from']) && $subevent['date_from'] !== null) {
                         $subeventDate = strtotime($subevent['date_from']);
-                        $dateDiff = abs($subeventDate - $currentDate);
-                        if ($dateDiff < $closestDateDiff) {
-                            $closestDateDiff = $dateDiff;
-                            $closestSubevent = $subevent;
+                        // $dateDiff = abs($subeventDate - $currentDate);
+                        // if ($dateDiff < $closestDateDiff) {
+                        //     $closestDateDiff = $dateDiff;
+                        //     $closestSubevent = $subevent;
+                        // }
+                        if ($subeventDate >= $currentDate) {
+                            $dateDiff = abs($subeventDate - $currentDate);
+                            if ($dateDiff < $closestDateDiff) {
+                                $closestDateDiff = $dateDiff;
+                                $closestSubevent = $subevent;
+                            }
                         }
                     }
                 }
                 return $closestSubevent;
             }
             return null;
+        }
+        public function get_people($orders, $sona_name_question) {
+            $approved_people = [];
+            foreach ($orders['results'] as $result) {
+                foreach ($result['positions'] as $position) {
+                    $sonaNameAnswers = array_filter($position['answers'], function($a) use ($sona_name_question) {
+                        return $a['question_identifier'] == $sona_name_question;
+                    });
+                    $approved_people[] = $this->first_or_none(array_column($sonaNameAnswers, 'answer'));
+                    
+                }
+            }
+            return $approved_people;
         }
         public function get_approved_people($orders, $permission_question, $sona_name_question) {
             $approved_people = [];
