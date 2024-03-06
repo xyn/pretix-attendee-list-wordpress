@@ -50,4 +50,3 @@
         $value = get_option($field_name);
         echo '<input type="text" name="' . esc_attr($field_name) . '" value="' . esc_attr($value) . '" />';
     }
-?>

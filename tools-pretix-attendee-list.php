@@ -60,4 +60,3 @@
             return $approved_people;
         }
     }
-?>

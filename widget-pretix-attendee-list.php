@@ -105,4 +105,3 @@ function pretix_attendee_list_shortcode($atts) {
     return ob_get_clean();
 }
 add_shortcode('pretix_attendee_list', 'pretix_attendee_list_shortcode');
-?>
