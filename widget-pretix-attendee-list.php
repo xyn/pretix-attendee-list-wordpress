@@ -23,7 +23,7 @@ class Pretix_Attendee_List_Widget extends WP_Widget {
         $pretix_api_token = get_option("pretix_api_token");
         $pretix_organizer = get_option("pretix_organizer");
 
-        $api_calls = new Pretix_Attendee_List_Api_Calls();
+        $api_calls = new Pretix_Api($pretix_api_url, $pretix_api_token);
         $tools = new Pretix_Attendee_List_Tools();
 
         if($is_singular_event == False) {
