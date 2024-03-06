@@ -4,7 +4,10 @@ class Pretix_Api {
 	public function __construct( private readonly string $apiUrl, private readonly string $apiToken ) {
 	}
 
-	private function api_call( $path ) {
+	/**
+	 * @throws AttendeeListException
+	 */
+	private function api_call( string $path ): array {
 		if ( str_starts_with( $path, $this->apiUrl ) ) {
 			$url = $path;
 		} else {
@@ -19,20 +22,23 @@ class Pretix_Api {
 		];
 		$response = wp_remote_request( $url, $args );
 
-		if ( ! is_wp_error( $response ) && $response['response']['code'] === 200 ) {
-			$body = wp_remote_retrieve_body( $response );
-			$data = json_decode( $body, true );
-			if ( $data !== null ) {
-				return $data;
-			} else {
-				return new WP_Error( 'json_decode_error', 'Error decoding JSON data' );
-			}
-		} else {
-			return $response;
+		if ( is_wp_error( $response ) || $response['response']['code'] !== 200 ) {
+			throw new AttendeeListException( 'The remote request to the Pretix API failed', 'wp_remote_request_failed' );
 		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
+		if ( $data === null ) {
+			throw new AttendeeListException( 'Error decoding JSON data', 'json_decode_error' );
+		}
+
+		return $data;
 	}
 
-	public function get_subevents( $organizer, $event, $subevent = null ) {
+	/**
+	 * @throws AttendeeListException
+	 */
+	public function get_subevents( string $organizer, string $event, ?string $subevent = null ): array {
 		if ( empty( $subevent ) ) {
 			$path = "organizers/$organizer/events/$event/subevents";
 		} else {
@@ -42,7 +48,10 @@ class Pretix_Api {
 		return $this->api_call( $path );
 	}
 
-	public function get_orders( $organizer, $event, $subevent = null ) {
+	/**
+	 * @throws AttendeeListException
+	 */
+	public function get_orders( string $organizer, string $event, ?string $subevent = null ): array {
 		$params = [
 			'status' => 'p', // only get paid orders
 		];

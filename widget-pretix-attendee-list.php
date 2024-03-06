@@ -23,28 +23,38 @@ class Pretix_Attendee_List_Widget extends WP_Widget {
 		$pretix_api_token = get_option( "pretix_api_token" );
 		$pretix_organizer = get_option( "pretix_organizer" );
 
-		$api_calls = new Pretix_Api( $pretix_api_url, $pretix_api_token );
-		$tools     = new Pretix_Attendee_List_Tools();
+		$pretix_api = new Pretix_Api( $pretix_api_url, $pretix_api_token );
+		$tools      = new Pretix_Attendee_List_Tools();
 
-		if ( ! $is_singular_event ) {
-			if ( empty( $subevent ) ) {
-				$subevents        = $api_calls->get_subevents( $pretix_organizer, $event );
-				$closest_subevent = $tools->get_closest_subevent( $subevents );
-				$orders           = $api_calls->get_orders( $pretix_organizer, $event, $closest_subevent['id'] );
+		try {
+			if ( ! $is_singular_event ) {
+				if ( empty( $subevent ) ) {
+					$subevents        = $pretix_api->get_subevents( $pretix_organizer, $event );
+					$closest_subevent = $tools->get_closest_subevent( $subevents );
+					$orders           = $pretix_api->get_orders( $pretix_organizer, $event, $closest_subevent['id'] );
+				} else {
+					$orders = $pretix_api->get_orders( $pretix_organizer, $event, $subevent );
+				}
 			} else {
-				$orders = $api_calls->get_orders( $pretix_organizer, $event, $subevent );
+				$orders = $pretix_api->get_orders( $pretix_organizer, $event );
 			}
-		} else {
-			$orders = $api_calls->get_orders( $pretix_organizer, $event );
+
+			$people          = $tools->get_all_attendee_names( $orders, $sona_name_question_identifier );
+			$approved_people = $tools->get_approved_attendee_names( $orders, $permission_question_identifier, $sona_name_question_identifier );
+
+			echo sprintf( "<p>Nose counter: %s</p>", count( $people ) );
+			echo "<ul>\n";
+			foreach ( $approved_people as $person ) {
+				echo sprintf( "\t<li>%s</li>\n", htmlspecialchars( $person ) );
+			}
+			echo "</ul>\n";
+
+		} catch ( AttendeeListException $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
+				echo '<p>An exception occurred when rendering the widget:</p>';
+				echo sprintf( "<pre>%s</pre>", htmlspecialchars( $e->getMessage() ) );
+			}
 		}
-		$approved_people = $tools->get_approved_attendee_names( $orders, $permission_question_identifier, $sona_name_question_identifier );
-		$people          = $tools->get_all_attendee_names( $orders, $sona_name_question_identifier );
-		echo "<p>Nose counter: " . count( $people ) . "</p>";
-		echo "<ul>\n";
-		foreach ( $approved_people as $person ) {
-			echo "\t<li>" . htmlspecialchars( $person ) . "</li>\n";
-		}
-		echo "</ul>\n";
 
 		echo $args['after_widget'];
 
