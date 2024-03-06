@@ -13,15 +13,15 @@
                 $currentDate = time();
 
                 foreach ($subevents['results'] as $subevent) {
-                    if (isset($subevent['date_from'])) {
-                        $subeventDate = strtotime($subevent['date_from']);
-                        if ($subeventDate >= $currentDate) {
-                            $dateDiff = abs($subeventDate - $currentDate);
-                            if ($dateDiff < $closestDateDiff) {
-                                $closestDateDiff = $dateDiff;
-                                $closestSubevent = $subevent;
-                            }
-                        }
+                    if (!isset($subevent['date_from'])) {
+                        continue;
+                    }
+                    $subeventDate = strtotime($subevent['date_from']);
+                    $dateDiff = abs($subeventDate - $currentDate);
+
+                    if ($subeventDate >= $currentDate && $dateDiff < $closestDateDiff) {
+                        $closestDateDiff = $dateDiff;
+                        $closestSubevent = $subevent;
                     }
                 }
                 return $closestSubevent;
@@ -36,7 +36,7 @@
                         return $a['question_identifier'] == $sona_name_question;
                     });
                     $approved_people[] = $this->first_or_none(array_column($sonaNameAnswers, 'answer'));
-                    
+
                 }
             }
             return $approved_people;
