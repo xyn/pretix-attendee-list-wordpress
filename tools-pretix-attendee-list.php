@@ -74,7 +74,7 @@ class Pretix_Attendee_List_Tools {
 	}
 
 	private static function filter_answers( array $position, string $question_identifier ): array {
-		if ( isset( $position['answers'] ) ) {
+		if ( ! isset( $position['answers'] ) ) {
 			throw new InvalidArgumentException();
 		}
 
