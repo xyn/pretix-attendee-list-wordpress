@@ -13,13 +13,8 @@
                 $currentDate = time();
 
                 foreach ($subevents['results'] as $subevent) {
-                    if (isset($subevent['date_from']) && $subevent['date_from'] !== null) {
+                    if (isset($subevent['date_from'])) {
                         $subeventDate = strtotime($subevent['date_from']);
-                        // $dateDiff = abs($subeventDate - $currentDate);
-                        // if ($dateDiff < $closestDateDiff) {
-                        //     $closestDateDiff = $dateDiff;
-                        //     $closestSubevent = $subevent;
-                        // }
                         if ($subeventDate >= $currentDate) {
                             $dateDiff = abs($subeventDate - $currentDate);
                             if ($dateDiff < $closestDateDiff) {
