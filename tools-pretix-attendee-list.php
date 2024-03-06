@@ -1,7 +1,7 @@
 <?php
 
 class Pretix_Attendee_List_Tools {
-	public function first_or_none( $array ) {
+	public static function first_or_none( $array ): mixed {
 		foreach ( $array as $item ) {
 			return $item;
 		}
@@ -34,38 +34,38 @@ class Pretix_Attendee_List_Tools {
 		return null;
 	}
 
-	public function get_all_attendee_names( $orders, $sona_name_question ): array {
-		$approvedPeople = [];
+	public function get_all_attendee_names( $orders, $display_name_question_id ): array {
+		$names = [];
 		foreach ( $orders['results'] as $result ) {
 			foreach ( $result['positions'] as $position ) {
-				$sonaNameAnswers  = array_filter( $position['answers'], function ( $a ) use ( $sona_name_question ) {
-					return $a['question_identifier'] == $sona_name_question;
-				} );
-				$approvedPeople[] = $this->first_or_none( array_column( $sonaNameAnswers, 'answer' ) );
-
+				// in case there are multiple answers, take the first
+				$names[] = self::first_or_none( self::filter_answers( $position, $display_name_question_id ) );
 			}
 		}
 
-		return $approvedPeople;
+		return $names;
 	}
 
-	public function get_approved_attendee_names( $orders, $permission_question, $sona_name_question ): array {
+	public function get_approved_attendee_names( $orders, $permission_question_id, $display_name_question_id ): array {
 		$approved_people = [];
 		foreach ( $orders['results'] as $result ) {
 			foreach ( $result['positions'] as $position ) {
-				$permissionAnswers     = array_filter( $position['answers'], function ( $a ) use ( $permission_question ) {
-					return $a['question_identifier'] == $permission_question;
-				} );
-				$firstPermissionAnswer = $this->first_or_none( array_column( $permissionAnswers, 'answer' ) );
-				if ( $firstPermissionAnswer == 'True' ) {
-					$sonaNameAnswers   = array_filter( $position['answers'], function ( $a ) use ( $sona_name_question ) {
-						return $a['question_identifier'] == $sona_name_question;
-					} );
-					$approved_people[] = $this->first_or_none( array_column( $sonaNameAnswers, 'answer' ) );
+				// in case there are multiple answers, take the first
+				$permission_answer = self::first_or_none( self::filter_answers( $position, $permission_question_id ) );
+				if ( $permission_answer === 'True' ) {
+					$approved_people[] = self::first_or_none( self::filter_answers( $position, $display_name_question_id ) );
 				}
 			}
 		}
 
 		return $approved_people;
+	}
+
+	private static function filter_answers( array $position, string $question_identifier ): array {
+		// filter for all answers to a specific question using the question identifier
+		$answers = array_filter( $position['answers'], fn( $a ) => $a['question_identifier'] === $question_identifier );
+
+		// use array_column to get the actual answer values ($answers is an object/array)
+		return array_column( $answers, 'answer' );
 	}
 }
