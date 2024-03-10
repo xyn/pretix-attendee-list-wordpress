@@ -8,4 +8,3 @@
     require_once(plugin_dir_path(__FILE__) . 'tools-pretix-attendee-list.php');
     require_once(plugin_dir_path(__FILE__) . 'widget-pretix-attendee-list.php');
     require_once(plugin_dir_path(__FILE__) . 'settings-pretix-attendee-list.php');
-?>
